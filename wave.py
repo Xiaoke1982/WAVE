@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn import DecisionTree
+from sklearn.tree import DecisionTreeClassifier
 
 class WAVE:
 	
@@ -17,13 +17,22 @@ class WAVE:
 	def fit_base_classifiers(self, train_X, train_y):
 		if self.base_ensemble == "cerp":
 			pass
-		elif self.base_ensemble == "rf":
-			pass
-		elif self.base_ensemble == "bagging":
-			pass
 		else:
-			pass
+			if self.base_ensemble == "rf":
+			    max_features = "sqrt"
+		    elif self.base_ensemble == "bagging":
+			    max_features = None
+		    else:
+			    raise ValueError("not a valid ensemble type")
+		
+			for i in range(self.ensemble_size):
+				idxes = np.random.choice(np.arange(len(train_X)), size=len(train_X), replace=True)
+				bootstrap_X = train_X[idxes]
+				bootstrap_y = train_y[idxes]
 				
+				tree = DecisionTreeClassifier(random_state=self.random_state, max_features=max_features)
+				tree.fit(bootstrap_X, bootstrap_y)
+				self.base_classifiers.append(tree)
 	
 	def compute_weights(self, train_X, train_y):
 		
