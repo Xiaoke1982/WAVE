@@ -10,8 +10,10 @@ class WAVE(object):
 		self.base_classifiers = []
 		self.subfeatures_list = None
 		self.min_samples_split_cerp = min_samples_split_cerp
+		self.class_labels = None
 		
 	def fit(self, train_X, train_y):
+		self.class_labels = np.unique(train_y)
 		self.fit_base_classifiers(train_X, train_y)
 		self.compute_weights(train_X, train_y)
 		
@@ -145,10 +147,35 @@ class WAVE(object):
 		return self.base_classifiers
 	
 	def predict(self, new_X, return_type="label"):
-		if return_type == "label":
-			pass
+		pred_dict = {}
+		for label in self.class_labels:
+			pred_dict[label] = 0
+			
+		if len(new_X.shape) == 1:
+			new_X = new_X.reshape((1, -1))
+			
+		if self.base_ensemble == "cerp":
+			for i in range(self.ensemble_size):
+				features_idxes = self.subfeatures_list[i]
+				sub_X = new_X[:, features_idxes]
+				pred_label = self.base_classifiers[i].predict(sub_X)[0]
+				weit = self.weights[i]
+				pred_dict[pred_label] += weit
 		else:
-			pass
+			for i in range(self.ensemble_size):
+				pred_label = set.base_classifiers[i].predict(new_X)[0]
+				pred_dict[pred_label] += weit
+			
+		if return_type == "label":
+			prob = 0
+			ans_label = None
+			for label in pred_dict.keys():
+				if pred_dict[label] > prob:
+					prob = pred_dict[label]
+					ans_label = label
+			return label
+		else:
+			return pred_dict
 		
 
 	
