@@ -2,6 +2,13 @@ import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 
 class WAVE(object):
+	"""
+	Weight-Adjusted Voting algorithm for Ensembles of Classifiers (WAVE)
+	
+	Base Ensemble Option: 1.CERP, 2.Random Forest, 3.Bagging
+	
+	Base Classifier in the Ensemble: Decision Tree
+	"""
 	
 	def __init__(self, ensemble_size, base_ensemble="rf", min_samples_split_cerp=5):
 		"""
@@ -37,7 +44,7 @@ class WAVE(object):
 		"""
 		Fit the WAVE Ensemble consisting of base classifiers and corresponding weights
 		Args:
-		    train_X: 2-d numpy array, size=(n, k)
+		    train_X: 2-d numpy array, size=(n, p)
 			train_Y: 1-d numpy array, size=(n, )
 		
 		Return: None
@@ -60,7 +67,7 @@ class WAVE(object):
 		"""
 		Fit Base Classifiers, a helper function used in fit() method
 		Args:
-		    train_X: 2-d numpy array, size=(n, k)
+		    train_X: 2-d numpy array, size=(n, p)
 			train_Y: 1-d numpy array, size=(n, )
 			
 		Return: None
@@ -98,7 +105,7 @@ class WAVE(object):
 		"""
 		Fit CERP ensemble, a helper function used in fit_base_classifiers() method
 		Args:
-		    train_X: 2-d numpy array, size=(n, k)
+		    train_X: 2-d numpy array, size=(n, p)
 			train_Y: 1-d numpy array, size=(n, )
 			min_samples_split: The minimum number of samples required to split an internal node	for trees in CERP
 						       This argument controlls the complexity of base trees in CERP
@@ -148,24 +155,36 @@ class WAVE(object):
 	
 	def compute_weights(self, train_X, train_y):
 		"""
-		Comput Weights for Base Classifiers
-		
+		Compute Weights for Base Classifiers
+		Args:
+		    train_X: 2-d numpy array, size=(n, p)
+			train_Y: 1-d numpy array, size=(n, )
+		Return: None
+		Update: self.weights
 		"""
-		# performance matrix:
-		X = self.performance_matrix(train_X, train_y)
-		
+		# n is the number of instances in training set
 		n = len(train_X)
+		# k is the number of base classifiers in the ensemble
 		k = self.ensemble_size
 		
+		# call a helper function to compute performance matrix X
+		# X has the shape (n, k)
+		X = self.performance_matrix(train_X, train_y)
+		
+		# Define two matrices consisting of 1s
 		J_nk = np.ones((n, k))
 		J_kk = np.ones((k, k))
 		
+		# Define an identity matrix
 		identity_k = np.identity(k)
 		
+		# Compute the matrix T 
 		T = X.T.dot((J_nk-X)).dot((J_kk - identity_k))
 		
+		# Find eigenvalues and eigenvectors of T 
 		eig_values, eig_vectors = np.linalg.eig(T)[0].real, np.linalg.eig(T)[1].real
 		
+		# Find r domain eigenvalues 
 		max_eig_value = eig_values.max()
 		r = 0
 		idxes_max_eig = []
@@ -173,62 +192,113 @@ class WAVE(object):
 			if eig_values[i] == max_eig_value:
 				r += 1
 				idxes_max_eig.append(i)
-				
-		sigma = np.zeros((k, k))
 		
+		# compute matrix sigma
+		sigma = np.zeros((k, k))
 		for i in range(r):
 			u = eig_vectors[:, idxes_max_eig[i]]
 			u = u.reshape((k, 1))
 			sigma += u.dot(u.T)
-			
+		
+		# Define a vector of 1s
 		k_1 = np.ones((k, 1))
 		
+		# Compute the weight vector and set it as self.weights
 		self.weights = (sigma.dot(k_1)) / k_1.T.dot(sigma).dot(k_1)
 			
 	
 	def performance_matrix(self, train_X, train_y):
+		"""
+		helper function to compute performance matrix
+		Args:
+		    train_X: 2-d numpy array, size=(n, p)
+			train_Y: 1-d numpy array, size=(n, )
+			
+		Return: performance matrix X
+				shape of X: (n, k), where k is the ensemble size
+				each element of X is either 1 or 0
+		"""
+		
+		# Initialize X as the predictions of the training set by the first base classifier
+		# After initialization, shape of X is (n, ), each element of X is either True or False
 		if self.base_ensemble == "cerp":
 			X = self.base_classifiers[0].predict(train_X[:, self.subfeatures_list[0]]) == train_y
 		else:
 			X = self.base_classifiers[0].predict(train_X) == train_y
+			
+		# trainsform elements of X from boolean to int: True=>1, False=>0
 		X = X.astype(int)
+		
+		# For each of the other base classifiers, make predictions of training set
 		for i in range(1, self.ensemble_size):
 			if self.base_ensemble == "cerp":
 				column_i = self.base_classifiers[i].predict(train_X[:, self.subfeatures_list[i]]) == train_y
 			else:
 				column_i = self.base_classifiers[i].predict(train_X) == train_y
 			column_i = column_i.astype(int)
+			
+			# attach predictions of each base classifier to X as a new column
 			X = np.column_stack((X, column_i))
 		
 		return X
 	
 	
 	def get_weights(self):
+		"""
+		Return: Weight Vector of Base Classifiers
+				shape: 2-d array (k, 1), where k is the ensemble size
+		"""
 		return self.weights
 	
 	def get_base_classifiers(self):
+		"""
+		Return: a list of base classifiers
+		"""
 		return self.base_classifiers
 	
 	def predict(self, new_X, return_type="label"):
+		"""
+		Args:
+			new_X: new instance(s) for making prediction
+				   shape of new_X: either 1-d array (one instance), (p, )
+				                     or   2-d array (multiple instances), (n, p)
+			return_type: either "label" or "prob"
+		
+		Return:
+			if input return_type is "label": return the predicted label
+			if input return_type is	"prob" : return a dictionary, key is possible label, value is corresponding predicted probablity
+		"""
+		
+		# Initialize the prediction dictionary
+		# key is each possible label
+		# value is the predicted probability of the label, initialized as 0
 		pred_dict = {}
 		for label in self.class_labels:
 			pred_dict[label] = 0
 			
+		# check the shape of new_X
+		# if the shape is 1-d array (k,), then reshape it to 2-d array (1, k)
+		# reshape is necessary for making prediction
 		if len(new_X.shape) == 1:
 			new_X = new_X.reshape((1, -1))
 			
+		# making predictions, update pred_dict
 		if self.base_ensemble == "cerp":
+			# for CERP, each base classifier makes predictions only use subset of features of new_X
 			for i in range(self.ensemble_size):
+				# extract subfeatures of new_X for making prediction by current base classifier
 				features_idxes = self.subfeatures_list[i]
 				sub_X = new_X[:, features_idxes]
 				pred_label = self.base_classifiers[i].predict(sub_X)[0]
 				weit = self.weights[i]
 				pred_dict[pred_label] += weit
 		else:
+			# in the cases where base ensemble is either Bagging or Random Forest
 			for i in range(self.ensemble_size):
 				pred_label = set.base_classifiers[i].predict(new_X)[0]
 				pred_dict[pred_label] += weit
 			
+		# if the return_type is chosen to be "label", find the label that has the highest weight
 		if return_type == "label":
 			prob = 0
 			ans_label = None
@@ -238,6 +308,7 @@ class WAVE(object):
 					ans_label = label
 			return label
 		else:
+			# in the case here return_type is chosen to be "prob", just return the pred_dict
 			return pred_dict
 		
 
