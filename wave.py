@@ -5,8 +5,8 @@ class WAVE(object):
 	"""
 	Weight-Adjusted Voting algorithm for Ensembles of Classifiers (WAVE)
 	
+	This class provides methods to implement WAVE ensemble under different options of aggregation schema. 
 	Base Ensemble Option: 1.CERP, 2.Random Forest, 3.Bagging
-	
 	Base Classifier in the Ensemble: Decision Tree
 	"""
 	
@@ -45,7 +45,7 @@ class WAVE(object):
 		Fit the WAVE Ensemble consisting of base classifiers and corresponding weights
 		Args:
 		    train_X: 2-d numpy array, size=(n, p)
-			train_Y: 1-d numpy array, size=(n, )
+		    train_Y: 1-d numpy array, size=(n, )
 		
 		Return: None
 		Update: self.class_labels
@@ -68,7 +68,7 @@ class WAVE(object):
 		Fit Base Classifiers, a helper function used in fit() method
 		Args:
 		    train_X: 2-d numpy array, size=(n, p)
-			train_Y: 1-d numpy array, size=(n, )
+		    train_Y: 1-d numpy array, size=(n, )
 			
 		Return: None
 		Update: self.base_classifiers
@@ -109,8 +109,8 @@ class WAVE(object):
 		Fit CERP ensemble, a helper function used in fit_base_classifiers() method
 		Args:
 		    train_X: 2-d numpy array, size=(n, p)
-			train_Y: 1-d numpy array, size=(n, )
-			min_samples_split: The minimum number of samples required to split an internal node	for trees in CERP.
+		    train_Y: 1-d numpy array, size=(n, )
+		    min_samples_split: The minimum number of samples required to split an internal node	for trees in CERP.
 			                   This argument controlls the complexity of base trees in CERP
 		
 		Return: None
@@ -162,7 +162,7 @@ class WAVE(object):
 		Compute Weights for Base Classifiers
 		Args:
 		    train_X: 2-d numpy array, size=(n, p)
-			train_Y: 1-d numpy array, size=(n, )
+		    train_Y: 1-d numpy array, size=(n, )
 		Return: None
 		Update: self.weights
 		"""
@@ -216,11 +216,11 @@ class WAVE(object):
 		helper function to compute performance matrix
 		Args:
 		    train_X: 2-d numpy array, size=(n, p)
-			train_Y: 1-d numpy array, size=(n, )
+		    train_Y: 1-d numpy array, size=(n, )
 			
 		Return: performance matrix X
-				shape of X: (n, k), where k is the ensemble size
-				each element of X is either 1 or 0
+			    shape of X: (n, k), where k is the ensemble size
+			    each element of X is either 1 or 0
 		"""
 		
 		# Initialize X as the predictions of the training set by the first base classifier
@@ -251,7 +251,7 @@ class WAVE(object):
 	def get_weights(self):
 		"""
 		Return: Weight Vector of Base Classifiers
-				shape: 2-d array (k, 1), where k is the ensemble size
+			    shape: 2-d array (k, 1), where k is the ensemble size
 		"""
 		return self.weights
 	
@@ -264,17 +264,17 @@ class WAVE(object):
 	def predict(self, new_X, return_type="label"):
 		"""
 		Args:
-			new_X: new instance(s) for making prediction
+		    new_X: new instance(s) for making prediction
 				   shape of new_X: either 1-d array (one instance), (p, )
 				                     or   2-d array (multiple instances), (n, p)
-			return_type: either "label" or "prob"
+		    return_type: either "label" or "prob"
 		
 		Return:
 		    a list consisting of of predictions
 			    if input return_type is "label": each prediction is the predicted label
 			    if input return_type is	"prob" : each prediction is a dictionary, where
 				                                 key is possible label, and
-												 value is corresponding predicted probablity
+									             value is corresponding predicted probablity
 												 
 		"""
 		
@@ -336,10 +336,10 @@ class WAVE(object):
 		
 		Args:
 		    test_X: either a 1-d array or a 2-d array
-			test_y: 1-d array
+		    test_y: 1-d array
 			
 		Return:
-			float: accuracy on test set
+		    float: accuracy on test set
 		"""
 		predictions = self.predict(test_X)
 		return np.mean(predictions == test_y)
