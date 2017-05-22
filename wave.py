@@ -281,19 +281,19 @@ class WAVE(object):
 		if len(new_X.shape) == 1:
 			new_X = new_X.reshape((1, -1))
 			
-		for idx in len(new_X):
+		for idx in range(len(new_X)):
 			new_instance = new_X[[idx]]
 			
 			# Initialize the prediction dictionary
 		    # key is each possible label
 		    # value is the predicted probability of the label, initialized as 0
-		    pred_dict = {}
-		    for label in self.class_labels:
+			pred_dict = {}
+			for label in self.class_labels:
 			    pred_dict[label] = 0
 			
 		    # making predictions, update pred_dict
-		    if self.base_ensemble == "cerp":
-			    # for CERP, each base classifier makes predictions only use subset of features of new_X
+			if self.base_ensemble == "cerp":
+			    # for CERP, each base classifier makes predictions only use subset of features of new_instance
 			    for i in range(self.ensemble_size):
 				    # extract subfeatures of new_X for making prediction by current base classifier
 				    features_idxes = self.subfeatures_list[i]
@@ -301,15 +301,15 @@ class WAVE(object):
 				    pred_label = self.base_classifiers[i].predict(sub_X)[0] # a scalar, not an array
 				    weit = self.weights[i][0]  # a scalar, not an array
 				    pred_dict[pred_label] += weit
-		    else:
+			else:
 			    # in the cases where base ensemble is either Bagging or Random Forest
 			    for i in range(self.ensemble_size):
-				    pred_label = set.base_classifiers[i].predict(new_X)[0]  # a scalar, not an array
+				    pred_label = set.base_classifiers[i].predict(new_instance)[0]  # a scalar, not an array
 				    weit = self.weights[i][0]  # a scalar, not an array
 				    pred_dict[pred_label] += weit
 			
 		    # if the return_type is chosen to be "label", find the label that has the highest weight
-		    if return_type == "label":
+			if return_type == "label":
 			    prob = 0
 			    ans_label = None
 			    for label in pred_dict.keys():
@@ -317,9 +317,11 @@ class WAVE(object):
 					    prob = pred_dict[label]
 					    ans_label = label
 			    predictions.append(label)
-		    else:
+			else:
 			    # in the case here return_type is chosen to be "prob", just return the pred_dict
 			    predictions.append(pred_dict)
+				
+		return predictions
 		
 
 	
