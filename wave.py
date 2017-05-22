@@ -316,7 +316,7 @@ class WAVE(object):
 				    if pred_dict[label] > prob:
 					    prob = pred_dict[label]
 					    ans_label = label
-			    predictions.append(label)
+			    predictions.append(ans_label)
 			else:
 			    # in the case here return_type is chosen to be "prob", just return the pred_dict
 			    predictions.append(pred_dict)
