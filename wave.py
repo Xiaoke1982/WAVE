@@ -303,7 +303,7 @@ class WAVE(object):
 			else:
 			    # in the cases where base ensemble is either Bagging or Random Forest
 			    for i in range(self.ensemble_size):
-				    pred_label = set.base_classifiers[i].predict(new_instance)[0]  # a scalar, not an array
+				    pred_label = self.base_classifiers[i].predict(new_instance)[0]  # a scalar, not an array
 				    weit = self.weights[i][0]  # a scalar, not an array
 				    pred_dict[pred_label] += weit
 			
