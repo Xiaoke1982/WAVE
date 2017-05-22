@@ -73,6 +73,9 @@ class WAVE(object):
 		Return: None
 		Update: self.base_classifiers
 		"""
+		# set list of base classifiers to be empty
+		self.base_classifiers = []
+		
 		# if the base ensemble is CERP, call fit_cerp helper function
 		if self.base_ensemble == "cerp":
 			self.fit_cerp(train_X, train_y, self.min_samples_split_cerp)
@@ -231,6 +234,7 @@ class WAVE(object):
 		
 		# For each of the other base classifiers, make predictions of training set
 		for i in range(1, self.ensemble_size):
+			print (i)
 			if self.base_ensemble == "cerp":
 				column_i = self.base_classifiers[i].predict(train_X[:, self.subfeatures_list[i]]) == train_y
 			else:
