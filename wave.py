@@ -265,16 +265,15 @@ class WAVE(object):
 			return_type: either "label" or "prob"
 		
 		Return:
-			if input return_type is "label": return the predicted label
-			if input return_type is	"prob" : return a dictionary, key is possible label, value is corresponding predicted probablity
+		    a list consisting of of predictions
+			    if input return_type is "label": each prediction is the predicted label
+			    if input return_type is	"prob" : each prediction is a dictionary, where
+				                                 key is possible label, and
+												 value is corresponding predicted probablity
 		"""
 		
-		# Initialize the prediction dictionary
-		# key is each possible label
-		# value is the predicted probability of the label, initialized as 0
-		pred_dict = {}
-		for label in self.class_labels:
-			pred_dict[label] = 0
+		#Initialize the predictions as an empty list
+		predictions = []
 			
 		# check the shape of new_X
 		# if the shape is 1-d array (k,), then reshape it to 2-d array (1, k)
@@ -282,34 +281,45 @@ class WAVE(object):
 		if len(new_X.shape) == 1:
 			new_X = new_X.reshape((1, -1))
 			
-		# making predictions, update pred_dict
-		if self.base_ensemble == "cerp":
-			# for CERP, each base classifier makes predictions only use subset of features of new_X
-			for i in range(self.ensemble_size):
-				# extract subfeatures of new_X for making prediction by current base classifier
-				features_idxes = self.subfeatures_list[i]
-				sub_X = new_X[:, features_idxes]
-				pred_label = self.base_classifiers[i].predict(sub_X)[0]
-				weit = self.weights[i]
-				pred_dict[pred_label] += weit
-		else:
-			# in the cases where base ensemble is either Bagging or Random Forest
-			for i in range(self.ensemble_size):
-				pred_label = set.base_classifiers[i].predict(new_X)[0]
-				pred_dict[pred_label] += weit
+		for idx in len(new_X):
+			new_instance = new_X[[idx]]
 			
-		# if the return_type is chosen to be "label", find the label that has the highest weight
-		if return_type == "label":
-			prob = 0
-			ans_label = None
-			for label in pred_dict.keys():
-				if pred_dict[label] > prob:
-					prob = pred_dict[label]
-					ans_label = label
-			return label
-		else:
-			# in the case here return_type is chosen to be "prob", just return the pred_dict
-			return pred_dict
+			# Initialize the prediction dictionary
+		    # key is each possible label
+		    # value is the predicted probability of the label, initialized as 0
+		    pred_dict = {}
+		    for label in self.class_labels:
+			    pred_dict[label] = 0
+			
+		    # making predictions, update pred_dict
+		    if self.base_ensemble == "cerp":
+			    # for CERP, each base classifier makes predictions only use subset of features of new_X
+			    for i in range(self.ensemble_size):
+				    # extract subfeatures of new_X for making prediction by current base classifier
+				    features_idxes = self.subfeatures_list[i]
+				    sub_X = new_instance[:, features_idxes]
+				    pred_label = self.base_classifiers[i].predict(sub_X)[0] # a scalar, not an array
+				    weit = self.weights[i][0]  # a scalar, not an array
+				    pred_dict[pred_label] += weit
+		    else:
+			    # in the cases where base ensemble is either Bagging or Random Forest
+			    for i in range(self.ensemble_size):
+				    pred_label = set.base_classifiers[i].predict(new_X)[0]  # a scalar, not an array
+				    weit = self.weights[i][0]  # a scalar, not an array
+				    pred_dict[pred_label] += weit
+			
+		    # if the return_type is chosen to be "label", find the label that has the highest weight
+		    if return_type == "label":
+			    prob = 0
+			    ans_label = None
+			    for label in pred_dict.keys():
+				    if pred_dict[label] > prob:
+					    prob = pred_dict[label]
+					    ans_label = label
+			    predictions.append(label)
+		    else:
+			    # in the case here return_type is chosen to be "prob", just return the pred_dict
+			    predictions.append(pred_dict)
 		
 
 	
