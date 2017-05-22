@@ -110,8 +110,9 @@ class WAVE(object):
 		Args:
 		    train_X: 2-d numpy array, size=(n, p)
 			train_Y: 1-d numpy array, size=(n, )
-			min_samples_split: The minimum number of samples required to split an internal node	for trees in CERP
-						       This argument controlls the complexity of base trees in CERP
+			min_samples_split: The minimum number of samples required to split an internal node	for trees in CERP.
+			                   This argument controlls the complexity of base trees in CERP
+		
 		Return: None
 		Update: self.base_classifiers
 		"""
@@ -234,7 +235,7 @@ class WAVE(object):
 		
 		# For each of the other base classifiers, make predictions of training set
 		for i in range(1, self.ensemble_size):
-			print (i)
+			#print (i)
 			if self.base_ensemble == "cerp":
 				column_i = self.base_classifiers[i].predict(train_X[:, self.subfeatures_list[i]]) == train_y
 			else:
@@ -274,6 +275,7 @@ class WAVE(object):
 			    if input return_type is	"prob" : each prediction is a dictionary, where
 				                                 key is possible label, and
 												 value is corresponding predicted probablity
+												 
 		"""
 		
 		#Initialize the predictions as an empty list
@@ -327,6 +329,20 @@ class WAVE(object):
 				
 		return predictions
 		
+	
+	def accuracy(self, test_X, test_y):
+		"""
+		Compute the prediction accuracy on the given test set
+		
+		Args:
+		    test_X: either a 1-d array or a 2-d array
+			test_y: 1-d array
+			
+		Return:
+			float: accuracy on test set
+		"""
+		predictions = self.predict(test_X)
+		return np.mean(predictions == test_y)
 
 	
 	
