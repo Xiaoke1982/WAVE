@@ -19,7 +19,7 @@ class WAVE(object):
 						   "bagging": Bagging
 						   "cerp":    CERP
 			min_samples_split_cerp: int, >= 2, default = 5,
-			               The minimum number of samples required to split an internal node	for trees in CERP
+		                   The minimum number of samples required to split an internal node	for trees in CERP
 		                   This argument controlls the complexity of base trees in CERP
 		"""
 		self.ensemble_size = ensemble_size
@@ -61,8 +61,6 @@ class WAVE(object):
 		# compute weight vector using helper function
 		self.compute_weights(train_X, train_y)
 		
-		
-	
 	def fit_base_classifiers(self, train_X, train_y):
 		"""
 		Fit Base Classifiers, a helper function used in fit() method
@@ -155,8 +153,6 @@ class WAVE(object):
 			# update self.base_classifiers by appending the base tree
 			self.base_classifiers.append(tree)
 			
-			
-	
 	def compute_weights(self, train_X, train_y):
 		"""
 		Compute Weights for Base Classifiers
@@ -210,7 +206,6 @@ class WAVE(object):
 		# Compute the weight vector and set it as self.weights
 		self.weights = (sigma.dot(k_1)) / k_1.T.dot(sigma).dot(k_1)
 			
-	
 	def performance_matrix(self, train_X, train_y):
 		"""
 		helper function to compute performance matrix
@@ -219,7 +214,7 @@ class WAVE(object):
 		    train_Y: 1-d numpy array, size=(n, )
 			
 		Return: performance matrix X
-	            shape of X: (n, k), where k is the ensemble size
+		        shape of X: (n, k), where k is the ensemble size
 		        each element of X is either 1 or 0
 		"""
 		
@@ -247,7 +242,6 @@ class WAVE(object):
 		
 		return X
 	
-	
 	def get_weights(self):
 		"""
 		Return: Weight Vector of Base Classifiers
@@ -266,16 +260,15 @@ class WAVE(object):
 		Args:
 		    new_X: new instance(s) for making prediction
 		           shape of new_X: either 1-d array (one instance), (p, )
-			                         or   2-d array (multiple instances), (n, p)
+				                     or   2-d array (multiple instances), (n, p)
 		    return_type: str, either "label" or "prob"
 		
 		Return:
 		    a list consisting of of predictions
 		        if input return_type is "label": each prediction is the predicted label
 		        if input return_type is "prob" : each prediction is a dictionary, where
-			                                     key is possible label, and
-                                                 value is corresponding predicted probablity
-												 
+				                                 key is possible label, and
+												 value is corresponding predicted probablity							 
 		"""
 		
 		#Initialize the predictions as an empty list
