@@ -19,7 +19,7 @@ class WAVE(object):
 						   "bagging": Bagging
 						   "cerp":    CERP
 			min_samples_split_cerp: int, >= 2, default = 5,
-		                   The minimum number of samples required to split an internal node	for trees in CERP
+		                   The minimum number of samples required to split an internal node for trees in CERP
 		                   This argument controlls the complexity of base trees in CERP
 		"""
 		self.ensemble_size = ensemble_size
@@ -260,15 +260,15 @@ class WAVE(object):
 		Args:
 		    new_X: new instance(s) for making prediction
 		           shape of new_X: either 1-d array (one instance), (p, )
-				                     or   2-d array (multiple instances), (n, p)
+		                             or   2-d array (multiple instances), (n, p)
 		    return_type: str, either "label" or "prob"
 		
 		Return:
 		    a list consisting of of predictions
 		        if input return_type is "label": each prediction is the predicted label
 		        if input return_type is "prob" : each prediction is a dictionary, where
-				                                 key is possible label, and
-												 value is corresponding predicted probablity							 
+		                                         key is possible label, and
+		                                         value is corresponding predicted probablity							 
 		"""
 		
 		#Initialize the predictions as an empty list
