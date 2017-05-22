@@ -20,7 +20,7 @@ class WAVE(object):
 						   "cerp":    CERP
 			min_samples_split_cerp: int, >= 2, default = 5,
 			               The minimum number of samples required to split an internal node	for trees in CERP
-						   This argument controlls the complexity of base trees in CERP
+		                   This argument controlls the complexity of base trees in CERP
 		"""
 		self.ensemble_size = ensemble_size
 		self.base_ensemble = base_ensemble
@@ -111,7 +111,7 @@ class WAVE(object):
 		    train_X: 2-d numpy array, size=(n, p)
 		    train_Y: 1-d numpy array, size=(n, )
 		    min_samples_split: The minimum number of samples required to split an internal node	for trees in CERP.
-			                   This argument controlls the complexity of base trees in CERP
+		                       This argument controlls the complexity of base trees in CERP
 		
 		Return: None
 		Update: self.base_classifiers
@@ -219,8 +219,8 @@ class WAVE(object):
 		    train_Y: 1-d numpy array, size=(n, )
 			
 		Return: performance matrix X
-			    shape of X: (n, k), where k is the ensemble size
-			    each element of X is either 1 or 0
+	            shape of X: (n, k), where k is the ensemble size
+		        each element of X is either 1 or 0
 		"""
 		
 		# Initialize X as the predictions of the training set by the first base classifier
@@ -251,7 +251,7 @@ class WAVE(object):
 	def get_weights(self):
 		"""
 		Return: Weight Vector of Base Classifiers
-			    shape: 2-d array (k, 1), where k is the ensemble size
+		        shape: 2-d array (k, 1), where k is the ensemble size
 		"""
 		return self.weights
 	
@@ -265,16 +265,16 @@ class WAVE(object):
 		"""
 		Args:
 		    new_X: new instance(s) for making prediction
-				   shape of new_X: either 1-d array (one instance), (p, )
-				                     or   2-d array (multiple instances), (n, p)
-		    return_type: either "label" or "prob"
+		           shape of new_X: either 1-d array (one instance), (p, )
+			                         or   2-d array (multiple instances), (n, p)
+		    return_type: str, either "label" or "prob"
 		
 		Return:
 		    a list consisting of of predictions
-			    if input return_type is "label": each prediction is the predicted label
-			    if input return_type is	"prob" : each prediction is a dictionary, where
-				                                 key is possible label, and
-									             value is corresponding predicted probablity
+		        if input return_type is "label": each prediction is the predicted label
+		        if input return_type is "prob" : each prediction is a dictionary, where
+			                                     key is possible label, and
+                                                 value is corresponding predicted probablity
 												 
 		"""
 		
